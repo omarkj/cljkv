@@ -24,7 +24,7 @@
     [this ^String key value]
     (swap! base assoc key {:val value}))
   (insert [this ^String key value ttl-ms]
-    (let [timeout (+ (System/currentTimeMillis) ttl-ms)]
+    (let [timeout (+ (System/currentTimeMillis) ^Integer ttl-ms)]
       (swap! base assoc key {:val value
                              :ttl timeout})))
   (items [this]
