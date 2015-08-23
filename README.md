@@ -54,6 +54,14 @@ Get the number of pairs in the store using them `items` function
 (cljkv.core/items store)
 ```
 
+## Run the tests
+
+This project uses Leiningen.
+
+``` bash
+$ lein test
+```
+
 ## Design goals
 
 * API
