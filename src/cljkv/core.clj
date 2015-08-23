@@ -10,7 +10,7 @@
 
 (defrecord Store [base]
   Cljkv
-  (fetch [_ ^String key]
+  (fetch [this key]
     (when-let [res (get @base key)]
       (if-let [timeout (get res :ttl)]
         (if (> timeout (System/currentTimeMillis))
@@ -18,13 +18,13 @@
           ((delete this key)
            nil))
         (get res :val))))
-  (delete [_ ^String key]
+  (delete [_ key]
     (swap! base dissoc key))
   (insert
-    [this ^String key value]
+    [this key value]
     (swap! base assoc key {:val value}))
-  (insert [this ^String key value ttl-ms]
-    (let [timeout (+ (System/currentTimeMillis) ^Integer ttl-ms)]
+  (insert [this key value ttl-ms]
+    (let [timeout (+ (System/currentTimeMillis) ttl-ms)]
       (swap! base assoc key {:val value
                              :ttl timeout})))
   (items [this]
@@ -32,4 +32,4 @@
 
 (defn create-mutable-store
   ([] create-mutable-store {})
-  ([seed] (Store. (atom seed))))
+  ([seed] (->Store (atom seed))))
