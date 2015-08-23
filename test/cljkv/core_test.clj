@@ -68,4 +68,4 @@
             p95 (get percentiles 0.95)
             p99 (get percentiles 0.99)]
         (is (< p95 1000000.0))
-        (is (< p99 5000000.0))))))  
+        (is (< p99 5000000.0))))))

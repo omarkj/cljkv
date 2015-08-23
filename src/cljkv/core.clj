@@ -1,5 +1,7 @@
 (ns cljkv.core)
 
+(set! *warn-on-reflection* true)
+
 (defprotocol Cljkv
   (insert
     [_ key value ttl]
@@ -31,5 +33,5 @@
     (count @base)))
 
 (defn create-mutable-store
-  ([] create-mutable-store {})
+  ([] (create-mutable-store (clojure.lang.PersistentHashMap/EMPTY)))
   ([seed] (->Store (atom seed))))
