@@ -31,7 +31,8 @@
       (is (= (cljkv.core/fetch store "e") "f"))))
   (testing "Getting a key with an expired TTL return nil and removes the record"
     (let [store (cljkv.core/create-mutable-store example-data)]
-      (cljkv.core/insert store "e" "f" 0) ; TTL is in 0 seconds, expires right away
+      (cljkv.core/insert store "e" "f" 1)
+      (Thread/sleep 2)
       (is (= (cljkv.core/items store) 3))
       (is (= (cljkv.core/fetch store "e") nil))
       (is (= (cljkv.core/items store) 2))))

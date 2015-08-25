@@ -1,4 +1,5 @@
-(ns cljkv.core)
+(ns cljkv.core
+  (:require [cljkv.immutable-store :as is]))
 
 (set! *warn-on-reflection* true)
 
@@ -10,28 +11,21 @@
   (delete [_ key] "Delete a value from the store")
   (items [_] "Number of pairs in the store"))
 
-(defrecord Store [base]
+(defrecord MutableStore [base]
   Cljkv
   (fetch [this key]
-    (when-let [res (get @base key)]
-      (if-let [timeout (get res :ttl)]
-        (if (> timeout (System/currentTimeMillis))
-          (get res :val)
-          ((delete this key)
-           nil))
-        (get res :val))))
+    (when (is/expired? @base key)
+       (delete this key))
+    (is/fetch @base key))
   (delete [_ key]
-    (swap! base dissoc key))
-  (insert
-    [this key value]
-    (swap! base assoc key {:val value}))
-  (insert [this key value ttl-ms]
-    (let [timeout (+ (System/currentTimeMillis) ttl-ms)]
-      (swap! base assoc key {:val value
-                             :ttl timeout})))
+    (swap! base is/delete key))
+  (insert [_ key value]
+    (swap! base is/insert key value))
+  (insert [_ key value ttl-ms]
+    (swap! base is/insert key value ttl-ms))
   (items [this]
     (count @base)))
 
-(defn create-mutable-store
+(defn create-mutable-store  
   ([] (create-mutable-store (clojure.lang.PersistentHashMap/EMPTY)))
-  ([seed] (->Store (atom seed))))
+  ([seed] (->MutableStore (atom (is/create-store seed)))))
